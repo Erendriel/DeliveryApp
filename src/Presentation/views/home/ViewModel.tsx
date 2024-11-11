@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { LoginAuthUseCase } from "../../../Domain/useCases/auth/LoginAuth";
-
+import { SaveUserLocalUseCase } from "../../../Domain/useCases/userLocal/SaveUserLocal";
+import useUserLocal from "../../hooks/useUserLocal";
 const HomeViewModel = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [values, setValues] = useState({
     email: "",
     password: "",
   });
+  const { user, getUserSession } = useUserLocal();
 
   const onChange = (property: string, value: any) => {
     setValues({ ...values, [property]: value });
@@ -19,6 +21,9 @@ const HomeViewModel = () => {
       console.log("RESPONSE: ", JSON.stringify(response));
       if (!response.success) {
         setErrorMessage("Correo o contraseña incorrectos");
+      } else {
+        await SaveUserLocalUseCase(response.data);
+        getUserSession();
       }
     }
   };
@@ -46,6 +51,7 @@ const HomeViewModel = () => {
 
   return {
     ...values,
+    user,
     errorMessage,
     login,
     onChange,

@@ -12,23 +12,30 @@ import {
   ToastAndroid,
 } from "react-native";
 import RoundedButton from "../../components/RoundedButton";
-import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
+import { StackScreenProps } from "@react-navigation/stack";
 import { RootStackParamList } from "../../../../App";
 
 import useViewModel from "./ViewModel";
 import CustomTextInput from "../../components/CustomTextInput";
 import styles from "./Styles";
 
-export const HomeScreen = () => {
-  const { email, password, errorMessage, onChange, login } = useViewModel();
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+interface Props extends StackScreenProps<RootStackParamList, "HomeScreen"> {}
+
+export const HomeScreen = ({ navigation, route }: Props) => {
+  const { email, password, errorMessage, user, onChange, login } =
+    useViewModel();
 
   useEffect(() => {
     if (errorMessage !== "") {
       ToastAndroid.show(errorMessage, ToastAndroid.LONG);
     }
   }, [errorMessage]);
+
+  useEffect(() => {
+    if (user?.id !== null && user?.id !== undefined) {
+      navigation.replace("ProfileInfoScreen");
+    }
+  }, [user]);
 
   return (
     <KeyboardAvoidingView
@@ -49,9 +56,8 @@ export const HomeScreen = () => {
             <Text style={styles.logoTitle}>FOOD APP</Text>
           </View>
           <View style={styles.form}>
+            <Text style={styles.formText}>INGRESAR</Text>
             <ScrollView>
-              <Text style={styles.formText}>INGRESAR</Text>
-
               <CustomTextInput
                 image={require("../../../../assets/email.png")}
                 placeholder="Correo electronico"
